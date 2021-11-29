@@ -19,11 +19,6 @@ git push --set-upstream origin ${BRANCH_NAME}
 
 # gh pr status --json state | jq '.currentBranch."state"'
 
-# gh pr create --base main --title "My first cli PR" --body "What did I do?"
-
-
-# git rev-parse --short HEAD
-
-
+gh pr create --base main --title "Reconciler image bump" --body "Bumped reconciler images."
 
 #"MERGED"
