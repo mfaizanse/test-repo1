@@ -19,6 +19,6 @@ git push --set-upstream origin ${BRANCH_NAME}
 
 # gh pr status --json state | jq '.currentBranch."state"'
 
-gh pr create --base main --title "Reconciler image bump" --body "Bumped reconciler images."
+gh pr create --base main --title "Reconciler image bump" --body "Bumped reconciler images." --label bug
 
 #"MERGED"
