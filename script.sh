@@ -19,7 +19,7 @@ git push --set-upstream origin ${BRANCH_NAME}
 
 # gh pr status --json state | jq '.currentBranch."state"'
 
-PR_STATUS=$(gh pr status --json state | jq '.currentBranch."state"')
+PR_STATUS=$(gh pr status --json state | jq -r '.currentBranch."state"')
 
 echo ${PR_STATUS}
 
