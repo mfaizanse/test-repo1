@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export BRANCH_NAME=test_branch
+export BRANCH_NAME="reconciler_image_bump"
 export RECONCILER_IMAGE_TAG=$(git rev-parse --short HEAD)
 export VALUES_YAML_PATH="values.yaml"
 
@@ -19,6 +19,13 @@ git push --set-upstream origin ${BRANCH_NAME}
 
 # gh pr status --json state | jq '.currentBranch."state"'
 
-gh pr create --base main --title "Reconciler image bump" --body "Bumped reconciler images." --label bug
+PR_STATUS=$(gh pr status --json state | jq -r '.currentBranch."state"')
 
-#"MERGED"
+if [[ ! ${PR_STATUS} = "OPEN" ]]; then
+    gh pr create --base main --title "Reconciler image bump [Kyma-bot]" --body "Bumped reconciler images." --label bug
+else
+    echo "Pull request already exists with status: ${PR_STATUS}"
+fi
+
+
+#"MERGED", "OPEN"
