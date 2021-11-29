@@ -21,12 +21,10 @@ git push --set-upstream origin ${BRANCH_NAME}
 
 PR_STATUS=$(gh pr status --json state | jq -r '.currentBranch."state"')
 
-echo ${PR_STATUS}
-
 if [[ ! ${PR_STATUS} = "OPEN" ]]; then
     gh pr create --base main --title "Reconciler image bump [Kyma-bot]" --body "Bumped reconciler images." --label bug
 else
-    echo "Pull request already exists!!!"
+    echo "Pull request already exists with status: ${PR_STATUS}"
 fi
 
 
