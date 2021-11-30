@@ -24,8 +24,13 @@ PR_STATUS=$(gh pr status --json state | jq -r '.currentBranch."state"')
 if [[ ! ${PR_STATUS} = "OPEN" ]]; then
     gh pr create --base main --title "Reconciler image bump [Kyma-bot]" --body "Bumped reconciler images." --label bug
 else
-    echo "Pull request already exists with status: ${PR_STATUS}"
+    PR_URL=$(gh pr status --json url | jq -r '.currentBranch."url"')
+    echo "Pull Request already exists: ${PR_URL}"
 fi
 
 
 #"MERGED", "OPEN"
+
+# eu.gcr.io/kyma-project/test-infra/prow-tools:v20211110-ab51bd20
+# eu.gcr.io/kyma-project/test-infra/kyma-integration:v20211104-fac1690a
+# eu.gcr.io/kyma-project/test-infra/buildpack-golang:v20211110-ab51bd20
