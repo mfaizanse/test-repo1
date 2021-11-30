@@ -6,8 +6,21 @@ export VALUES_YAML_PATH="values.yaml"
 
 echo ${RECONCILER_IMAGE_TAG}
 
-git config --global user.email "kyma.bot@sap.com"
-git config --global user.name "Kyma Bot"
+# git config --global user.email "kyma.bot@sap.com"
+# git config --global user.name "Kyma Bot"
+# git config --global credential.https://github.com.username kyma-bot
+
+git config --global user.email "mfaizan.se@gmail.com"
+git config --global user.name "Muhammad Faizan"
+git config --global credential.https://github.com.username mfaizanse
+git config --global credential.helper store
+
+TOKEN_VALUE=$(cat /workspace/token.txt)
+echo "https://mfaizanse:${TOKEN_VALUE}@github.com" > ~/.git-credentials
+
+gh config set -h github.com git_protocol https
+gh config set prompt disabled
+gh auth login --hostname github.com --with-token < /workspace/token.txt
 
 git checkout -B ${BRANCH_NAME}
 
@@ -31,10 +44,6 @@ fi
 PR_URL=$(gh pr status --json url | jq -r '.currentBranch."url"')
 echo "Pull Request (PR): ${PR_URL}"
 
-#"MERGED", "OPEN"
+# git clone https://github.com/mfaizanse/test-repo1.git
 
-# eu.gcr.io/kyma-project/test-infra/prow-tools:v20211110-ab51bd20
-# eu.gcr.io/kyma-project/test-infra/kyma-integration:v20211104-fac1690a
-# eu.gcr.io/kyma-project/test-infra/buildpack-golang:v20211110-ab51bd20
-
-# install yq and gh commands
+# gh auth login --hostname github.com --with-token < token
