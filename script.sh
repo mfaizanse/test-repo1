@@ -44,6 +44,9 @@ fi
 PR_URL=$(gh pr status --json url | jq -r '.currentBranch."url"')
 echo "Pull Request (PR): ${PR_URL}"
 
+gh auth logout --hostname github.com
+rm ~/.git-credentials
+
 # git clone https://github.com/mfaizanse/test-repo1.git
 
 # gh auth login --hostname github.com --with-token < token
