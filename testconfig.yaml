@@ -1,0 +1,27 @@
+gitHubLogin: "kyma-bot"
+gitHubToken: "/etc/github/token1"
+gitName: "Muhammad Faizan"
+gitEmail: "mfaizan.se@gmail.com"
+skipPullRequest: false
+gitHubOrg: "kyma-project"
+gitHubRepo: "test-infra"
+remoteName: "test-infra-1"
+upstreamURLBase: "https://raw.githubusercontent.com/kyma-project/test-infra/main"
+onlyGitChanges: true
+title: "Creating test PR"
+description: "Creating test description"
+# includedConfigPaths:
+#   - "."
+# excludedConfigPaths:
+#   - "prow/staging"
+# extraFiles:
+#   - "development/tools/jobs/tester/tester.go"
+targetVersion: "latest"
+prefixes:
+  - name: "Prow"
+    prefix: "gcr.io/k8s-prow/"
+    refConfigFile: "prow/cluster/components/deck_deployment.yaml"
+    stagingRefConfigFile: "prow/staging/cluster/deck_deployment.yaml"
+    repo: "https://github.com/kubernetes/test-infra"
+    summarise: true
+    consistentImages: true
