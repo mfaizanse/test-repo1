@@ -78,7 +78,13 @@ jobs:
     name: Run unit tests
     needs: validate-input-params
     runs-on: ubuntu-latest
+    env:
+      RELEASE_BRANCH: ${{ needs.validate-input-params.outputs.release_branch }}
     steps:
+      - name: Get release branch name
+        run: |
+          echo "Release branch: ${{ needs.validate-input-params.outputs.release_branch }}"
+          echo "Release branch env: ${RELEASE_BRANCH}"
       - name: Checkout code
         uses: actions/checkout@v4
         with: # checkout the release branch.
