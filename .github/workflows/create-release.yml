@@ -151,7 +151,7 @@ jobs:
 
   bump-sec-scanners-main-branch:
     name: Bump image in sec-scanners-config
-    needs: [ validate-input-params, build-image ]
+    needs: [ validate-input-params, build-image, create-draft ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
