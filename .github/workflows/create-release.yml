@@ -52,7 +52,9 @@ jobs:
           ref: "main"
 
       - name: Check if that release tag is valid
-        run: "./hack/scripts/check_release_tag.sh "${RELEASE_TAG}"
+        id: check-release-tag
+        run: |
+          ./hack/scripts/check_release_tag.sh "${RELEASE_TAG}
 
       - name: Check if release tag already exists
         run: |
