@@ -50,6 +50,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: "main"
+
       - name: Check if that release tag is valid
         run: "./hack/scripts/check_release_tag.sh "${RELEASE_TAG}"
 
