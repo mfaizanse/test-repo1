@@ -81,10 +81,6 @@ jobs:
     env:
       RELEASE_BRANCH: ${{ needs.validate-input-params.outputs.release_branch }}
     steps:
-      - name: Get release branch name
-        run: |
-          echo "Release branch: ${{ needs.validate-input-params.outputs.release_branch }}"
-          echo "Release branch env: ${RELEASE_BRANCH}"
       - name: Checkout code
         uses: actions/checkout@v4
         with: # checkout the release branch.
@@ -93,7 +89,7 @@ jobs:
       - name: Check if the checked out branch is the release branch.
         run: |
           git branch --show-current
-          git branch --show-current | grep -q ${{ needs.validate-input-params.outputs.release_branch }}
+          git branch --show-current | grep -q ${RELEASE_BRANCH}
 
       - name: Run unit tests
         run: |
@@ -102,8 +98,10 @@ jobs:
 
   create-git-tag:
     name: Create git tag for release
-    needs: run-unit-tests
+    needs: [ validate-input-params, run-unit-tests]
     runs-on: ubuntu-latest
+    env:
+      RELEASE_BRANCH: ${{ needs.validate-input-params.outputs.release_branch }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -113,9 +111,9 @@ jobs:
       - name: Check if the checked out branch is the release branch.
         run: |
           git branch --show-current
-          git branch --show-current | grep -q ${{ needs.validate-input-params.outputs.release_branch }}
+          git branch --show-current | grep -q ${RELEASE_BRANCH}
 
-      - name: Create lightweight tag
+      - name: Create git tag
         run: |
           git tag "${RELEASE_TAG}"
           git push origin "${RELEASE_TAG}"
