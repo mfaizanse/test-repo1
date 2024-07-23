@@ -1,8 +1,7 @@
 name: Tag Build Image
 
 on:
-  release:
-    types: [created]
+  create
 
 permissions:
   id-token: write # This is required for requesting the JWT token
