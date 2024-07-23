@@ -131,10 +131,11 @@ jobs:
           ref: main
 
       - name: Setup python
-          uses: actions/setup-python@v4
-          with:
-            python-version: '3.9'
-            cache: 'pip'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
       - name: Install requirements
         run: |
           pip install -r ./scripts/python/wait-for-commit-check/requirements.txt
