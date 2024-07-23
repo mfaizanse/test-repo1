@@ -16,6 +16,7 @@ set -o pipefail # prevents errors in a pipeline from being masked
 # For more information, see # https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/about-status-checks#types-of-status-checks-on-github
 
 # Required env variables:
+# - GH_TOKEN                       - GitHub token for gh CLI.
 # - REPOSITORY_FULL_NAME           - Repository name including owner name e.g. kyma-project/kyma-companion.
 # - GIT_REF                        - Git reference to check for the check run (i.e. commit sha, branch name or tag name).
 # - GIT_CHECK_RUN_NAME             - Name of the git check to wait for.

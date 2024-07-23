@@ -131,6 +131,7 @@ jobs:
           ref: main
       - name: wait
         env:
+          GH_TOKEN: ${{ github.token }}
           GIT_REF: ${{ inputs.name }}
           GIT_CHECK_RUN_NAME: "build-${{ inputs.name }} / Build image"
           INTERVAL: 60
