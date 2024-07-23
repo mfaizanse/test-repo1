@@ -101,6 +101,7 @@ jobs:
     needs: [ validate-input-params, run-unit-tests]
     runs-on: ubuntu-latest
     env:
+      GITHUB_TOKEN: ${{ secrets.GIT_BOT_TOKEN }}
       RELEASE_BRANCH: ${{ needs.validate-input-params.outputs.release_branch }}
     steps:
       - name: Checkout code
