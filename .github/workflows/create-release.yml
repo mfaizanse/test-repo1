@@ -108,6 +108,7 @@ jobs:
         uses: actions/checkout@v4
         with: # checkout the release branch. This is the branch where the release tag will be created.
           ref: ${{ needs.validate-input-params.outputs.release_branch }}
+          token: ${{ secrets.GIT_BOT_TOKEN }}
 
       - name: Check if the checked out branch is the release branch.
         run: |
