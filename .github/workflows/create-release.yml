@@ -121,10 +121,14 @@ jobs:
           git push origin "${RELEASE_TAG}"
 
   wait-for-build:
-    name: Build container image
+    name: Wait for image build job
     needs: [ validate-input-params, create-git-tag ]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with: # release scripts are used from main branch.
+          ref: main
       - name: wait
         env:
           GIT_REF: ${{ inputs.name }}
