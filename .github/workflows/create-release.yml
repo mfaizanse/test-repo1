@@ -129,15 +129,25 @@ jobs:
         uses: actions/checkout@v4
         with: # release scripts are used from main branch.
           ref: main
-      - name: wait
+
+      - name: Setup python
+          uses: actions/setup-python@v4
+          with:
+            python-version: '3.9'
+            cache: 'pip'
+      - name: Install requirements
+        run: |
+          pip install -r ./scripts/python/wait-for-commit-check/requirements.txt
+
+      - name: wait for build
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
           GIT_REF: ${{ inputs.name }}
           GIT_CHECK_RUN_NAME: "build-${{ inputs.name }} / Build image"
           INTERVAL: 60
           TIMEOUT: 900
         run: |
-          ./scripts/shell/wait_for_commit_check_run.sh
+          python ./scripts/python/wait-for-commit-check/main.py
 
   create-draft:
     name: Create draft release
