@@ -1,11 +1,8 @@
 name: Tag Build Image
 
 on:
-  push:
-    tags:
-      - '^[0-9]+\.[0-9]+\.[0-9]+$'
-    paths-ignore:
-      - "docs/**"
+  release:
+    types: [created]
 
 permissions:
   id-token: write # This is required for requesting the JWT token
