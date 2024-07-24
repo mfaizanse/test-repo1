@@ -59,8 +59,7 @@ jobs:
       - name: Check if release tag already exists
         run: |
           if [ $(git tag -l "${RELEASE_TAG}") ]; then
-            echo "Error: Release tag "${RELEASE_TAG}" already exists"
-            exit 1
+            echo "Warning: Release tag ${RELEASE_TAG} already exists"
           fi
 
       - name: Export release branch name as action output
@@ -117,8 +116,8 @@ jobs:
 
       - name: Create git tag
         run: |
-          git tag "${RELEASE_TAG}"
-          git push origin "${RELEASE_TAG}"
+          ./scripts/shell/create_git_tag.sh "${RELEASE_TAG}"
+          
 
   wait-for-build:
     name: Wait for image build job
