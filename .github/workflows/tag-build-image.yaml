@@ -29,9 +29,10 @@ jobs:
   build:
     name: build-${{ github.ref_name }} # The release pipeline will check the status of this job by this name format (e.g. build-1.0.1).
     needs: compute-tags
-    uses: kyma-project/test-infra/.github/workflows/image-builder.yml@main
-    with:
-      name: kyma-companion
-      dockerfile: Dockerfile
-      context: .
-      tags: ${{ needs.compute-tags.outputs.tags }}
+    env:
+      TAGS: ${{ needs.compute-tags.outputs.tags }}
+    steps:
+      - name: dummy
+        run: |
+          echo "dummy run"
+          echo ${TAGS}
