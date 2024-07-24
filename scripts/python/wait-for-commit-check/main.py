@@ -63,12 +63,12 @@ def read_inputs():
 
 
 def print_inputs(inputs):
-    print('**** Using the following configurations: ****')
-    print('Repository Full Name: {}'.format(inputs['repository_full_name']))
-    print('Git REF : {}'.format(inputs['git_ref']))
-    print('Git Check Run Name : {}'.format(inputs['git_check_run_name']))
-    print('Timeout : {}'.format(inputs['timeout']))
-    print('Interval : {}'.format(inputs['interval']))
+    print('**** Using the following configurations: ****', flush=True)
+    print('Repository Full Name: {}'.format(inputs['repository_full_name']), flush=True)
+    print('Git REF : {}'.format(inputs['git_ref']), flush=True)
+    print('Git Check Run Name : {}'.format(inputs['git_check_run_name']), flush=True)
+    print('Timeout : {}'.format(inputs['timeout']), flush=True)
+    print('Interval : {}'.format(inputs['interval']), flush=True)
 
 
 def fetch_check_runs(repo, git_ref, token):
@@ -80,7 +80,7 @@ def fetch_check_runs(repo, git_ref, token):
         'Authorization': 'Bearer {}'.format(token)
     }
 
-    print('Fetching check runs from {}'.format(url))
+    print('Fetching check runs from {}'.format(url), flush=True)
     response = requests.get(url, headers=req_headers)
     if response.status_code != 200:
         raise Exception('API call failed. Status code: {}, {}'.format(response.status_code, response.text))
@@ -106,16 +106,16 @@ def main():
 
     start_time = time.time() # seconds
     while True:
-        print('****************************************************************************************')
+        print('****************************************************************************************', flush=True)
         # Sleep for `interval`.
         # sleeping before first check, so that any pending workflow on Git ref is triggered/updated.
         time.sleep(inputs['interval'])
 
         # check if timeout has reached.
         elapsed_time = time.time() - start_time
-        print('Elapsed time: {} secs (timout: {} secs)'.format(elapsed_time, inputs['timeout']))
+        print('Elapsed time: {} secs (timout: {} secs)'.format(elapsed_time, inputs['timeout']), flush=True)
         if elapsed_time > inputs['timeout']:
-            print('Error: Timed out!')
+            print('Error: Timed out!', flush=True)
             exit(1)
 
         # fetch check runs from GitHub.
@@ -124,27 +124,27 @@ def main():
         # extract the latest check run (because there may be multiple runs by same name).
         latest_check_run = get_latest_check_run(inputs['git_check_run_name'], check_runs['check_runs'])
         if latest_check_run is None:
-            print('Check run not found. Waiting...')
+            print('Check run not found. Waiting...', flush=True)
             continue
 
         # print details of the latest check run.
-        print('Found Check run: {} ({})'.format(latest_check_run['name'], latest_check_run['html_url']))
-        print('Check run Head-SHA: {}'.format(latest_check_run['head_sha']))
-        print('Check run start-at: {}'.format(latest_check_run['started_at']))
-        print('Check run status: {}'.format(latest_check_run['status']))
-        print('Check run conclusion: {}'.format(latest_check_run['conclusion']))
+        print('Found Check run: {} ({})'.format(latest_check_run['name'], latest_check_run['html_url']), flush=True)
+        print('Check run Head-SHA: {}'.format(latest_check_run['head_sha']), flush=True)
+        print('Check run start-at: {}'.format(latest_check_run['started_at']), flush=True)
+        print('Check run status: {}'.format(latest_check_run['status']), flush=True)
+        print('Check run conclusion: {}'.format(latest_check_run['conclusion']), flush=True)
 
         if latest_check_run['status'] != 'completed':
-            print('Check run not completed. Waiting...')
+            print('Check run not completed. Waiting...', flush=True)
             continue
 
         if latest_check_run['conclusion'] == 'success':
-            print('Check run completed with success.')
+            print('Check run completed with success.', flush=True)
             exit(0)
 
         # https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#list-check-runs-for-a-git-reference
         if latest_check_run['conclusion'] in ['failure', 'neutral', 'cancelled', 'skipped', 'timed_out']:
-            print('Check run completed with failure.')
+            print('Check run completed with failure.', flush=True)
             exit(1)
 
 
