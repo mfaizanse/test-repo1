@@ -19,8 +19,9 @@ set -o pipefail # prevents errors in a pipeline from being masked
 # get the release tag from arguments.
 release_tag="$1"
 
+echo "Checking if tag ${release_tag} already exists."
 if [ $(git tag -l "${release_tag}") ]; then
-  echo "Warning: Release tag ${release_tag} already exists. Checking if the SHA of tag is correct..."
+  echo "Release tag ${release_tag} already exists. Checking if the SHA of tag is correct..."
 
   tag_sha=$(git rev-list -n 1 "${release_tag}")
   if [ -z "${tag_sha}" ]; then
@@ -37,10 +38,10 @@ if [ $(git tag -l "${release_tag}") ]; then
   if [ "${tag_sha}" == "${branch_sha}" ]; then
     echo "Tag (${release_tag}) SHA (${tag_sha}) matches the current branch SHA(${branch_sha}). Skipping tag creation!"
     exit 0
-  else
-    echo "Error: Tag (${release_tag}) SHA (${tag_sha}) does not match the current branch SHA (${branch_sha})."
-    exit 1
   fi
+
+  echo "Error: Tag (${release_tag}) SHA (${tag_sha}) does not match the current branch SHA (${branch_sha})."
+  exit 1
 fi
 
 echo "Creating git tag: ${release_tag}"
