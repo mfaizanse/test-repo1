@@ -48,7 +48,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # fetch all the branches and tags.
           ref: "main"
 
       - name: Check if that release tag is valid
@@ -106,7 +106,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with: # checkout the release branch. This is the branch where the release tag will be created.
-          fetch-tags: true
+          fetch-depth: 0 # fetch all the branches and tags.
           ref: ${{ needs.validate-input-params.outputs.release_branch }}
           token: ${{ secrets.GIT_BOT_TOKEN }} # cloning repo using bot token because GITHUB_TOKEN would not trigger build workflow (https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow).
 
