@@ -22,7 +22,6 @@ env:
 jobs:
   test-companion:
     name: Run Companion tests
-    needs: wait-for-build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
