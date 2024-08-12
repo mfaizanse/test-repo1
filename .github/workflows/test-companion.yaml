@@ -157,7 +157,7 @@ jobs:
           ./kubectl get nodes
           ./kubectl get pods -n ai-core
           ./kubectl get svc -n ai-core
-          curl http://localhost:9080/readyz
+          curl http://localhost:9081/readyz
 
       - name: Extract Python version
         id: python-version
