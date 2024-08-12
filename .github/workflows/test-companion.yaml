@@ -72,7 +72,7 @@ jobs:
       - name: Deploy Kyma
         run: |
           echo "::group::Kyma - Provision"
-          bin/kyma@v2 provision k3d --ci --non-interactive -p 9080:80@loadbalancer -p 9443:443@loadbalancer
+          bin/kyma@v2 provision k3d --ci --non-interactive -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
           echo "::endgroup::"
 
           echo "::group::Kyma - Deploy"
