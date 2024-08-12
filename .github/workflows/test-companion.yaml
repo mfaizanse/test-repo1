@@ -130,6 +130,10 @@ jobs:
         id: companion-deploy-wait
         run: scripts/shell/deploy-wait-for-deployment.sh $DOCKER_TIMEOUT
 
+      - name: Test companion reachability
+        run: |
+          curl http://localhost:32000/readyz
+
       - name: Extract Python version
         id: python-version
         run: ./scripts/shell/extract-python-version.sh
@@ -156,6 +160,6 @@ jobs:
           export $(xargs < .env.companion.evaluation.tests)
           export LOG_LEVEL="DEBUG"
           export TEST_DATA_PATH="$(pwd)/tests/data"
-          export COMPANION_API_URL="http://localhost:32000/api/v1/pods/stream"
+          export COMPANION_API_URL="http://localhost:32000/chat"
           # run tests.
           poetry run python tests/blackbox/evaluation/run.py
