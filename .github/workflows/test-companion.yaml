@@ -133,6 +133,8 @@ jobs:
       - name: Test companion reachability
         run: |
           ./kubectl get nodes
+          ./kubectl get pods -n ai-core
+          ./kubectl get svc -n ai-core
           curl http://localhost:32000/readyz
 
       - name: Extract Python version
