@@ -126,6 +126,28 @@ jobs:
         run: |
           ./kubectl apply -f scripts/k8s/companion-deployment.yaml
 
+      - name: Create ingress
+        run: |
+          cat << EOF | kubectl apply -f -
+            apiVersion: networking.k8s.io/v1
+            kind: Ingress
+            metadata:
+              name: nginx
+              annotations:
+                ingress.kubernetes.io/ssl-redirect: "false"
+            spec:
+              rules:
+                - http:
+                    paths:
+                      - path: /
+                        pathType: Prefix
+                        backend:
+                          service:
+                            name: ai-backend-service
+                            port:
+                              number: 8080
+              EOF
+
       - name: Companion Deploy - Wait for deployment
         id: companion-deploy-wait
         run: scripts/shell/deploy-wait-for-deployment.sh $DOCKER_TIMEOUT
@@ -135,7 +157,7 @@ jobs:
           ./kubectl get nodes
           ./kubectl get pods -n ai-core
           ./kubectl get svc -n ai-core
-          curl http://localhost:32000/readyz
+          curl http://localhost:9080/readyz
 
       - name: Extract Python version
         id: python-version
