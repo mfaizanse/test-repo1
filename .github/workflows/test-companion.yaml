@@ -68,7 +68,7 @@ jobs:
       - name: Provision K3d cluster
         run: |
           echo "::group::K3d - Provision"
-          k3d cluster create --verbose -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
+          k3d cluster create --verbose --agents=1 -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
           echo "::endgroup::"
 
       - name: Verify Kyma deployment
