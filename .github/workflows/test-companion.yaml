@@ -46,14 +46,14 @@ jobs:
 #          fi
 #          echo "Kyma CLI version is correct: $kyma_cli_version"
 
-      - name: Install Kubectl CLI
+      - name: K3d  Setup - Install Kubectl CLI
         run: |
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
           mv ./kubectl /usr/local/bin/kubectl
           kubectl version --client
 
-      - name: Install K3d CLI
+      - name: K3d  Setup - Install K3d CLI
         id: install-k3d
         run: |
           curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=${K3D_VERSION} bash
@@ -65,17 +65,17 @@ jobs:
           fi
           echo "K3d version is correct: $k3d_version"
 
-      - name: Provision K3d cluster
+      - name: K3d  Setup - Provision K3d cluster
         run: |
           echo "::group::K3d - Provision"
           k3d cluster create test-cluster --verbose --agents=1 -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
           echo "::endgroup::"
 
-      - name: Verify K3d context
+      - name: K3d  Setup - Verify K3d context
         run: |
           echo "::group::K3d - Context"
           context_name=$(kubectl config current-context)
-          if [ "$context_name" != "test-cluster" ]; then
+          if [ "$context_name" != "k3d-test-cluster" ]; then
             echo "Kyma context is not correct. Expected: test-cluster, got: $context_name"
             exit 1
           fi
@@ -83,7 +83,7 @@ jobs:
           echo "::endgroup::"
 
 #          echo "::group::Kyma - Verify Kyma deployment"
-#          kyma_status=$(./kubectl get kyma -A -ojson | jq -r '[(.items[].status.state)] | .[0]')
+#          kyma_status=$(kubectl get kyma -A -ojson | jq -r '[(.items[].status.state)] | .[0]')
 #          echo "::debug::Kyma status: $kyma_status"
 #          if [ "$kyma_status" != "Ready" ]; then
 #            echo "Kyma is not Ready. Expected: Ready, got: $kyma_status"
@@ -92,37 +92,35 @@ jobs:
 #          echo "Kyma is Ready"
 #          echo "::endgroup::"
 
-      - name: Redis Deploy
+      - name: Redis Setup - Install Redis using Helm
         run: |
-          ./kubectl create namespace redis
+          kubectl create namespace redis
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm install --wait redis bitnami/redis --set auth.enabled=false -n redis
 
       - name: Companion Deploy - Create namespace
         run: |
-          ./kubectl apply -f scripts/k8s/companion-namespace.yaml
+          kubectl apply -f scripts/k8s/companion-namespace.yaml
 
-      - name: Companion Deploy - Create secret on Kyma
+      - name: Companion Deploy - Create secret
         run: |
           echo "${{ secrets.AICORE_SECRET }}" | base64 -d > scripts/k8s/aicore-secret.yaml
-          ./kubectl apply -f scripts/k8s/aicore-secret.yaml
+          kubectl apply -f scripts/k8s/aicore-secret.yaml
           rm -f scripts/k8s/aicore-secret.yaml
 
-      - name: Companion Deploy - Create configmap on Kyma
+      - name: Companion Deploy - Create ConfigMap
         run: |
           echo "${{ secrets.COMPANION_CONFIGMAP }}" | base64 -d > scripts/k8s/companion-configmap.yaml
-          ./kubectl apply -f scripts/k8s/companion-configmap.yaml
+          kubectl apply -f scripts/k8s/companion-configmap.yaml
           rm -f scripts/k8s/companion-configmap.yaml
 
       - name: Companion Deploy - Update image name in Deployment
-        working-directory:
         run: |
           sed -i "s|example.com/ai-backend:stable|${{env.IMAGE_NAME}}|g" scripts/k8s/companion-deployment.yaml
 
       - name: Companion Deploy - Create Backend and NodePort service
-        if: success() # Only run if previous steps succeeded
         run: |
-          ./kubectl apply -f scripts/k8s/companion-deployment.yaml
+          kubectl apply -f scripts/k8s/companion-deployment.yaml
 
       - name: Companion Deploy - Wait for deployment
         id: companion-deploy-wait
