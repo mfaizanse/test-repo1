@@ -68,18 +68,18 @@ jobs:
       - name: Provision K3d cluster
         run: |
           echo "::group::K3d - Provision"
-          k3d cluster create --verbose --agents=1 -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
+          k3d cluster create test-cluster --verbose --agents=1 -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
           echo "::endgroup::"
 
-      - name: Verify Kyma deployment
+      - name: Verify K3d context
         run: |
-          echo "::group::Kyma - Context"
-          context_name=$(./kubectl config current-context)
-          if [ "$context_name" != "k3d-kyma" ]; then
-            echo "Kyma context is not correct. Expected: k3d-kyma, got: $context_name"
+          echo "::group::K3d - Context"
+          context_name=$(kubectl config current-context)
+          if [ "$context_name" != "test-cluster" ]; then
+            echo "Kyma context is not correct. Expected: test-cluster, got: $context_name"
             exit 1
           fi
-          echo "Kyma context is correct"
+          echo "K3d context is correct"
           echo "::endgroup::"
 
 #          echo "::group::Kyma - Verify Kyma deployment"
