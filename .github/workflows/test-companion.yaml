@@ -57,8 +57,8 @@ jobs:
         id: install-k3d
         run: |
           curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=${K3D_VERSION} bash
-          echo "::set-output name=version::$(k3d --version)"
-          k3d_version=$(k3d --version | cut -d " " -f 3 | xargs)
+          k3d --version
+          k3d_version=$(k3d --version | cut -d " " -f 3 | head -1 | xargs)
           if [ "$k3d_version" != "${K3D_VERSION}" ]; then
             echo "K3d version is not correct. Expected: ${K3D_VERSION}, got: $k3d_version"
             exit 1
@@ -67,7 +67,7 @@ jobs:
 
       - name: Provision K3d cluster
         run: |
-          echo "::group::Kyma - Provision"
+          echo "::group::K3d - Provision"
           k3d cluster create --ci --non-interactive -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
           echo "::endgroup::"
 
