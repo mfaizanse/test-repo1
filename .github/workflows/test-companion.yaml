@@ -126,11 +126,21 @@ jobs:
       - name: Companion Deploy - Wait for deployment
         run: |
           echo "Waiting for backend pods (labels: app=ai-backend) to be ready..."
+          sleep 30s
+          kubectl get deploy -n ai-core
+          kubectl get pod -n ai-core
           kubectl wait --for=condition=Ready pod -l 'app=ai-backend' -n ai-core --timeout=300s
 
       - name: Companion Deploy - Test reachability through NodePort
         run: |
           curl http://localhost:32000/readyz
+
+      - name: Companion Deploy - Test reachability through NodePort
+        if: failure()
+        run: |
+          kubectl get deploy -n ai-core
+          kubectl get pod -n ai-core
+          kubectl logs -n ai-core -l app=ai-backend
 
       - name: Python Setup - Extract project Python version
         id: python-version
