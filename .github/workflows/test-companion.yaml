@@ -51,7 +51,9 @@ jobs:
         run: |
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
-          ./kubectl version --client
+          mkdir -p ~/.local/bin
+          mv ./kubectl ~/.local/bin/kubectl
+          kubectl version --client
 
       - name: Install K3d
         id: install-k3d
@@ -69,14 +71,10 @@ jobs:
           fi
           echo "K3d version is correct: $k3d_version"
 
-      - name: Deploy Kyma
+      - name: Provision K3d cluster
         run: |
           echo "::group::Kyma - Provision"
           bin/kyma@v2 provision k3d --ci --non-interactive -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
-          echo "::endgroup::"
-
-          echo "::group::Kyma - Deploy"
-          bin/kyma@v2 alpha deploy --ci --non-interactive
           echo "::endgroup::"
 
       - name: Verify Kyma deployment
@@ -90,15 +88,21 @@ jobs:
           echo "Kyma context is correct"
           echo "::endgroup::"
 
-          echo "::group::Kyma - Verify Kyma deployment"
-          kyma_status=$(./kubectl get kyma -A -ojson | jq -r '[(.items[].status.state)] | .[0]')
-          echo "::debug::Kyma status: $kyma_status"
-          if [ "$kyma_status" != "Ready" ]; then
-            echo "Kyma is not Ready. Expected: Ready, got: $kyma_status"
-            exit 1
-          fi
-          echo "Kyma is Ready"
-          echo "::endgroup::"
+#          echo "::group::Kyma - Verify Kyma deployment"
+#          kyma_status=$(./kubectl get kyma -A -ojson | jq -r '[(.items[].status.state)] | .[0]')
+#          echo "::debug::Kyma status: $kyma_status"
+#          if [ "$kyma_status" != "Ready" ]; then
+#            echo "Kyma is not Ready. Expected: Ready, got: $kyma_status"
+#            exit 1
+#          fi
+#          echo "Kyma is Ready"
+#          echo "::endgroup::"
+
+      - name: Redis Deploy
+        run: |
+          ./kubectl create namespace redis
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm install --wait redis bitnami/redis --set auth.enabled=false -n redis
 
       - name: Companion Deploy - Create namespace
         run: |
@@ -126,38 +130,13 @@ jobs:
         run: |
           ./kubectl apply -f scripts/k8s/companion-deployment.yaml
 
-      - name: Create ingress
-        run: |
-          cat << EOF | kubectl apply -f -
-          apiVersion: networking.k8s.io/v1
-          kind: Ingress
-          metadata:
-            name: nginx
-            annotations:
-              ingress.kubernetes.io/ssl-redirect: "false"
-          spec:
-            rules:
-              - http:
-                  paths:
-                    - path: /
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: ai-backend-service
-                          port:
-                            number: 8080
-          EOF
-
       - name: Companion Deploy - Wait for deployment
         id: companion-deploy-wait
         run: scripts/shell/deploy-wait-for-deployment.sh $DOCKER_TIMEOUT
 
       - name: Test companion reachability
         run: |
-          ./kubectl get nodes
-          ./kubectl get pods -n ai-core
-          ./kubectl get svc -n ai-core
-          curl http://localhost:9081/readyz
+          curl http://localhost:32000/readyz
 
       - name: Extract Python version
         id: python-version
