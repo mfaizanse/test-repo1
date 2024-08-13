@@ -30,40 +30,35 @@ jobs:
           ref: "main"
           repository: "kyma-project/kyma-companion"
 
-      - name: Install Kyma CLI
-        id: install-kyma-cli
-        run: |
-          mkdir -p bin
-          curl -L "https://github.com/kyma-project/cli/releases/download/${KYMA_VERSION}/kyma_$(uname -s)_$(uname -m).tar.gz" | tar -zxvf - -C bin kyma && mv bin/kyma bin/kyma@v2
-          echo "::set-output name=version::$(bin/kyma@v2 version)"
-        continue-on-error: true
+#      - name: Install Kyma CLI
+#        id: install-kyma-cli
+#        run: |
+#          mkdir -p bin
+#          curl -L "https://github.com/kyma-project/cli/releases/download/${KYMA_VERSION}/kyma_$(uname -s)_$(uname -m).tar.gz" | tar -zxvf - -C bin kyma && mv bin/kyma bin/kyma@v2
+#          echo "::set-output name=version::$(bin/kyma@v2 version)"
 
-      - name: Check Kyma CLI version
-        run: |
-          kyma_cli_version=$(echo "${{ steps.install-kyma-cli.outputs.version }}" | cut -d ":" -f 2 | xargs)
-          if [ "$kyma_cli_version" != "${KYMA_VERSION}" ]; then
-            echo "Kyma CLI version is not correct. Expected: ${KYMA_VERSION}, got: $kyma_cli_version"
-            exit 1
-          fi
-          echo "Kyma CLI version is correct: $kyma_cli_version"
+#      - name: Check Kyma CLI version
+#        run: |
+#          kyma_cli_version=$(echo "${{ steps.install-kyma-cli.outputs.version }}" | cut -d ":" -f 2 | xargs)
+#          if [ "$kyma_cli_version" != "${KYMA_VERSION}" ]; then
+#            echo "Kyma CLI version is not correct. Expected: ${KYMA_VERSION}, got: $kyma_cli_version"
+#            exit 1
+#          fi
+#          echo "Kyma CLI version is correct: $kyma_cli_version"
 
-      - name: Install Kubernetes CLI
+      - name: Install Kubectl CLI
         run: |
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
           mv ./kubectl /usr/local/bin/kubectl
           kubectl version --client
 
-      - name: Install K3d
+      - name: Install K3d CLI
         id: install-k3d
         run: |
           curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=${K3D_VERSION} bash
           echo "::set-output name=version::$(k3d --version)"
-        continue-on-error: true
-
-      - name: Check K3d version
-        run: |
-          k3d_version=$(echo "${{ steps.install-k3d.outputs.version }}" | cut -d " " -f 3 | xargs)
+          k3d_version=$(k3d --version | cut -d " " -f 3 | xargs)
           if [ "$k3d_version" != "${K3D_VERSION}" ]; then
             echo "K3d version is not correct. Expected: ${K3D_VERSION}, got: $k3d_version"
             exit 1
@@ -73,7 +68,7 @@ jobs:
       - name: Provision K3d cluster
         run: |
           echo "::group::Kyma - Provision"
-          bin/kyma@v2 provision k3d --ci --non-interactive -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
+          k3d cluster create --ci --non-interactive -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
           echo "::endgroup::"
 
       - name: Verify Kyma deployment
