@@ -82,16 +82,6 @@ jobs:
           echo "K3d context is correct"
           echo "::endgroup::"
 
-#          echo "::group::Kyma - Verify Kyma deployment"
-#          kyma_status=$(kubectl get kyma -A -ojson | jq -r '[(.items[].status.state)] | .[0]')
-#          echo "::debug::Kyma status: $kyma_status"
-#          if [ "$kyma_status" != "Ready" ]; then
-#            echo "Kyma is not Ready. Expected: Ready, got: $kyma_status"
-#            exit 1
-#          fi
-#          echo "Kyma is Ready"
-#          echo "::endgroup::"
-
       - name: Redis Setup - Deploy Redis using Helm
         run: |
           kubectl create namespace redis
