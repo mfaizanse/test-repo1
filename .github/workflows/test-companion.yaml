@@ -46,14 +46,14 @@ jobs:
 #          fi
 #          echo "Kyma CLI version is correct: $kyma_cli_version"
 
-      - name: K3d  Setup - Install Kubectl CLI
+      - name: K3d Setup - Install Kubectl CLI
         run: |
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
           mv ./kubectl /usr/local/bin/kubectl
           kubectl version --client
 
-      - name: K3d  Setup - Install K3d CLI
+      - name: K3d Setup - Install K3d CLI
         id: install-k3d
         run: |
           curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=${K3D_VERSION} bash
@@ -65,13 +65,13 @@ jobs:
           fi
           echo "K3d version is correct: $k3d_version"
 
-      - name: K3d  Setup - Provision K3d cluster
+      - name: K3d Setup - Provision K3d cluster
         run: |
           echo "::group::K3d - Provision"
           k3d cluster create test-cluster --verbose --agents=1 -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
           echo "::endgroup::"
 
-      - name: K3d  Setup - Verify K3d context
+      - name: K3d Setup - Verify K3d context
         run: |
           echo "::group::K3d - Context"
           context_name=$(kubectl config current-context)
@@ -92,10 +92,11 @@ jobs:
 #          echo "Kyma is Ready"
 #          echo "::endgroup::"
 
-      - name: Redis Setup - Install Redis using Helm
+      - name: Redis Setup - Deploy Redis using Helm
         run: |
           kubectl create namespace redis
           helm repo add bitnami https://charts.bitnami.com/bitnami
+          echo "Installing Redis using Helm..."
           helm install --wait redis bitnami/redis --set auth.enabled=false -n redis
 
       - name: Companion Deploy - Create namespace
@@ -118,33 +119,34 @@ jobs:
         run: |
           sed -i "s|example.com/ai-backend:stable|${{env.IMAGE_NAME}}|g" scripts/k8s/companion-deployment.yaml
 
-      - name: Companion Deploy - Create Backend and NodePort service
+      - name: Companion Deploy - Create Deployment and NodePort Service
         run: |
           kubectl apply -f scripts/k8s/companion-deployment.yaml
 
       - name: Companion Deploy - Wait for deployment
-        id: companion-deploy-wait
-        run: scripts/shell/deploy-wait-for-deployment.sh $DOCKER_TIMEOUT
+        run: |
+          echo "Waiting for backend pods (labels: app=ai-backend) to be ready..."
+          kubectl wait --for=condition=Ready pod -l 'app=ai-backend' -n ai-core --timeout=300s
 
-      - name: Test companion reachability
+      - name: Companion Deploy - Test reachability through NodePort
         run: |
           curl http://localhost:32000/readyz
 
-      - name: Extract Python version
+      - name: Python Setup - Extract project Python version
         id: python-version
         run: ./scripts/shell/extract-python-version.sh
 
-      - name: Setup Python
+      - name: Python Setup - Install Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install Poetry
+      - name: Python Setup - Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Install dependencies
+      - name: Python Setup - Install project dependencies
         run: poetry install --with dev
 
       - name: Run evaluation tests
