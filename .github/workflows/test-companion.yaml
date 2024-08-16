@@ -103,6 +103,7 @@ jobs:
 
       - name: Companion Deploy - Test reachability through NodePort
         run: |
+          sleep 30
           curl http://localhost:32000/readyz
 
       - name: Companion Deploy - Test reachability through NodePort
