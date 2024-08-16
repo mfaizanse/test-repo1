@@ -106,7 +106,7 @@ jobs:
           sleep 30
           curl http://localhost:32000/readyz
 
-      - name: Companion Deploy - Test reachability through NodePort
+      - name: Companion Deploy - Debug information
         if: failure()
         run: |
           kubectl get deploy -n ai-core
@@ -169,5 +169,4 @@ jobs:
           AICORE_CONFIGURATION_ID_GPT4: ${{ steps.eval-tests-configs.outputs.AICORE_CONFIGURATION_ID_GPT4 }}
           AICORE_DEPLOYMENT_ID_GPT4: ${{ steps.eval-tests-configs.outputs.AICORE_DEPLOYMENT_ID_GPT4 }}
         run: |
-          export $(xargs < .env.evaluation)
           poetry run python src/run_evaluation.py
