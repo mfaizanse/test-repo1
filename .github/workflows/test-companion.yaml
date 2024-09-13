@@ -1,9 +1,12 @@
-name: "Companion Test on Kyma"
-run-name: "Companion Test on Kyma"
+name: "Evaluation tests"
+run-name: "Evaluation tests"
 
 # Required repository secrets:
 # - AICORE_SECRET
 # - COMPANION_CONFIGMAP
+# - GARDENER_TEST_CLUSTER_URL
+# - GARDENER_TEST_CLUSTER_AUTH_TOKEN
+# - GARDENER_TEST_CLUSTER_CA_DATA
 
 on:
   push:
@@ -14,20 +17,21 @@ on:
 env:
   DOCKER_TIMEOUT: 30
   K3D_VERSION: "v5.7.2" # Required K3d version.
-  REPOSITORY_FULL_NAME: "${{ github.repository }}" # <owner>/<repository-name>.
+  REPOSITORY_FULL_NAME: "mfaizan/kyma-companion" # <owner>/<repository-name>.
   GITHUB_EVENT_ACTION: "${{ github.event.action }}"
-  IMAGE_NAME: "europe-docker.pkg.dev/kyma-project/prod/kyma-companion:main"
+  IMAGE_NAME: "europe-docker.pkg.dev/kyma-project/dev/kyma-companion:PR-158"
 
 jobs:
-  test-companion:
-    name: Run Companion tests
+  evaluation-tests:
+    name: Run evaluation tests
+    needs: wait-for-build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: "main"
-          repository: "kyma-project/kyma-companion"
+          ref: "kc-139"
+          repository: "mfaizan/kyma-companion"
 
       - name: K3d Setup - Install Kubectl CLI
         run: |
@@ -170,3 +174,14 @@ jobs:
           AICORE_DEPLOYMENT_ID_GPT4: ${{ steps.eval-tests-configs.outputs.AICORE_DEPLOYMENT_ID_GPT4 }}
         run: |
           poetry run python src/run_evaluation.py
+
+      - name: Evaluation Tests - Debug information
+        if: failure()
+        run: |
+          echo "fetching deployments:"
+          kubectl get deploy -n ai-core
+          echo "fetching pods:"
+          kubectl get pod -n ai-core
+          export POD_NAME=$(kubectl get -n ai-core pod -l app=ai-backend -o jsonpath="{.items[0].metadata.name}")
+          echo "fetching logs of pod ($POD_NAME):"
+          kubectl logs -n ai-core $POD_NAME
