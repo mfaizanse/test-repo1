@@ -110,7 +110,6 @@ jobs:
           curl http://localhost:32000/readyz
 
       - name: Companion Deploy - Debug information
-        if: failure()
         run: |
           kubectl get deploy -n ai-core
           kubectl get pod -n ai-core
@@ -181,6 +180,8 @@ jobs:
           kubectl get deploy -n ai-core
           echo "fetching pods:"
           kubectl get pod -n ai-core
+          echo "checking readiness of pod:"
+          curl http://localhost:32000/readyz
           export POD_NAME=$(kubectl get -n ai-core pod -l app=ai-backend -o jsonpath="{.items[0].metadata.name}")
           echo "fetching logs of pod ($POD_NAME):"
           kubectl logs -n ai-core $POD_NAME
