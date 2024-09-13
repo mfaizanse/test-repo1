@@ -17,7 +17,7 @@ on:
 env:
   DOCKER_TIMEOUT: 30
   K3D_VERSION: "v5.7.2" # Required K3d version.
-  REPOSITORY_FULL_NAME: "mfaizan/kyma-companion" # <owner>/<repository-name>.
+  REPOSITORY_FULL_NAME: "mfaizanse/kyma-companion" # <owner>/<repository-name>.
   GITHUB_EVENT_ACTION: "${{ github.event.action }}"
   IMAGE_NAME: "europe-docker.pkg.dev/kyma-project/dev/kyma-companion:PR-158"
 
@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: "kc-139"
-          repository: "mfaizan/kyma-companion"
+          repository: "mfaizanse/kyma-companion"
 
       - name: K3d Setup - Install Kubectl CLI
         run: |
