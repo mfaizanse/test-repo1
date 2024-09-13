@@ -24,7 +24,6 @@ env:
 jobs:
   evaluation-tests:
     name: Run evaluation tests
-    needs: wait-for-build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
