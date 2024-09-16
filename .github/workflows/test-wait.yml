@@ -8,7 +8,6 @@ on:
 jobs:
   wait-for-build-job:
     name: Wait for prow jobs
-    needs: [ create-draft, bump-sec-scanners-config ]
     runs-on: ubuntu-latest
 
     steps:
