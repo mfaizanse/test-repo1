@@ -41,7 +41,7 @@ jobs:
           python $GITHUB_WORKSPACE/kyma-project/eventing-tools/scripts/wait-for-commit-check/run.py
 
       - name: Check if release-eventing-auth-manager-build status is not success
-        if: steps.wait-for-post-eam-release-build.outputs.state != 'success'
+        if: steps.wait-for-build.outputs.state != 'success'
         run: |
           echo 'release-eventing-auth-manager-build failed.'
           exit 1
