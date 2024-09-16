@@ -38,7 +38,7 @@ jobs:
           INTERVAL: 60
           TIMEOUT: 900
         run: |
-          python $GITHUB_WORKSPACE/scripts/wait-for-commit-check/run.py
+          python $GITHUB_WORKSPACE/kyma-project/eventing-tools/scripts/wait-for-commit-check/run.py
 
       - name: Check if release-eventing-auth-manager-build status is not success
         if: steps.wait-for-post-eam-release-build.outputs.state != 'success'
