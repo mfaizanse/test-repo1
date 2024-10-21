@@ -23,6 +23,8 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             GH_COMMENT_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          github-comment post --template-key pr-notes --config .github/github-comment.yaml
+          github-comment post \
+            --template-key pr-notes \
+            --config .github/github-comment.yaml
 
 
