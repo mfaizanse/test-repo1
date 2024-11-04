@@ -1,0 +1,41 @@
+name: pull-lint-doc-indexer
+
+on:
+  push:
+    branches:
+      - "main"
+      - "release-**"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: "kyma-project/kyma-companion"
+
+      - name: Extract Python version
+        id: python-version
+        working-directory: ./doc_indexer
+        run: |
+          ../scripts/shell/extract-python-version.sh
+          echo "Got PYTHON_VERSION=${PYTHON_VERSION}"
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        working-directory: ./doc_indexer
+        run: poetry install --with dev
+
+      - name: Run unit tests
+        working-directory: ./doc_indexer
+        run: poetry run poe codecheck
