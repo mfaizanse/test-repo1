@@ -67,13 +67,13 @@ jobs:
           AICORE_BASE_URL: ${{ steps.int-tests-configs.outputs.AICORE_BASE_URL }}
           AICORE_RESOURCE_GROUP: ${{ steps.int-tests-configs.outputs.AICORE_RESOURCE_GROUP }}
           # EMBEDDING_MODEL.
-          EMBEDDING_MODEL_DEPLOYMENT_ID: ${{ secrets.GARDENER_TEST_CLUSTER_URL }}
-          EMBEDDING_MODEL_NAME: ${{ secrets.GARDENER_TEST_CLUSTER_CA_DATA }}
+          EMBEDDING_MODEL_DEPLOYMENT_ID: ${{ steps.int-tests-configs.outputs.EMBEDDING_MODEL_DEPLOYMENT_ID }}
+          EMBEDDING_MODEL_NAME: ${{ steps.int-tests-configs.outputs.EMBEDDING_MODEL_NAME }}
           # Database configurations.
-          DATABASE_URL: ${{ secrets.GARDENER_TEST_CLUSTER_URL }}
-          DATABASE_PORT: ${{ secrets.GARDENER_TEST_CLUSTER_CA_DATA }}
-          DATABASE_USER: ${{ secrets.GARDENER_TEST_CLUSTER_AUTH_TOKEN }}
-          DATABASE_PASSWORD: ${{ secrets.GARDENER_TEST_CLUSTER_AUTH_TOKEN }}
+          DATABASE_URL: ${{ steps.int-tests-configs.outputs.DATABASE_URL }}
+          DATABASE_PORT: ${{ steps.int-tests-configs.outputs.DATABASE_PORT }}
+          DATABASE_USER: ${{ steps.int-tests-configs.outputs.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ steps.int-tests-configs.outputs.DATABASE_PASSWORD }}
           # Kyma docs path.
           DOCS_SOURCES_FILE_PATH: "./docs_sources.json"
           DOCS_PATH: "./data"
@@ -92,13 +92,13 @@ jobs:
           AICORE_BASE_URL: ${{ steps.int-tests-configs.outputs.AICORE_BASE_URL }}
           AICORE_RESOURCE_GROUP: ${{ steps.int-tests-configs.outputs.AICORE_RESOURCE_GROUP }}
           # EMBEDDING_MODEL.
-          EMBEDDING_MODEL_DEPLOYMENT_ID: ${{ secrets.GARDENER_TEST_CLUSTER_URL }}
-          EMBEDDING_MODEL_NAME: ${{ secrets.GARDENER_TEST_CLUSTER_CA_DATA }}
+          EMBEDDING_MODEL_DEPLOYMENT_ID: ${{ steps.int-tests-configs.outputs.EMBEDDING_MODEL_DEPLOYMENT_ID }}
+          EMBEDDING_MODEL_NAME: ${{ steps.int-tests-configs.outputs.EMBEDDING_MODEL_NAME }}
           # Database configurations.
-          DATABASE_URL: ${{ secrets.GARDENER_TEST_CLUSTER_URL }}
-          DATABASE_PORT: ${{ secrets.GARDENER_TEST_CLUSTER_CA_DATA }}
-          DATABASE_USER: ${{ secrets.GARDENER_TEST_CLUSTER_AUTH_TOKEN }}
-          DATABASE_PASSWORD: ${{ secrets.GARDENER_TEST_CLUSTER_AUTH_TOKEN }}
+          DATABASE_URL: ${{ steps.int-tests-configs.outputs.DATABASE_URL }}
+          DATABASE_PORT: ${{ steps.int-tests-configs.outputs.DATABASE_PORT }}
+          DATABASE_USER: ${{ steps.int-tests-configs.outputs.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ steps.int-tests-configs.outputs.DATABASE_PASSWORD }}
           # Kyma docs path.
           DOCS_SOURCES_FILE_PATH: "./docs_sources.json"
           DOCS_PATH: "/test-data"
