@@ -36,6 +36,8 @@ jobs:
         working-directory: ./doc_indexer
         run: poetry install --with test
 
-      - name: Run unit tests
+      - name: Run lint
         working-directory: ./doc_indexer
-        run: poetry run poe codecheck
+        run: |
+          ls
+          poetry run poe codecheck
