@@ -1,22 +1,10 @@
 name: Integration Test
 
 on:
-  pull_request_target:
-    types: [ labeled, opened, synchronize, reopened, ready_for_review ]
+  push:
     branches:
       - "main"
       - "release-**"
-    paths-ignore:
-      - "docs/**"
-      - "**.md"
-      - CODEOWNERS
-      - LICENSE
-      - "LICENSES/**"
-      - ".reuse/**"
-      - "config/**"
-      - "data/**"
-      - "doc_indexer/**"
-      - "scripts/**"
 
 jobs:
   integration-test:
@@ -26,12 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          repository: "muralov/kyma-companion"
+          ref: "test-int-tests"
 
       - name: Extract Python version
         id: python-version
-        run: ./scripts/shell/extract-python-version.sh
+        run: ./scripts/shell/extract-python-version.shg
 
       - name: Setup Python
         uses: actions/setup-python@v4
