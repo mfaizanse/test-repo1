@@ -78,9 +78,7 @@ jobs:
         env:
           COMPANION_CONFIG_BASE64: ${{ secrets.EVALUATION_TESTS_CONFIG }}
         run: |
-          export COMPANION_CONFIG_PATH=$GITHUB_WORKSPACE/config/config.json
-          ls $GITHUB_WORKSPACE/config
-          cat $COMPANION_CONFIG_PATH | jq .DOCS_TABLE_NAME
+          kubectl create namespace ai-system
           ./scripts/k8s/create-secret.sh
 
       - name: Companion Deploy - Apply companion manifests
