@@ -28,6 +28,8 @@ jobs:
       - name: Add config.json for companion
         run: |
           echo "${{ secrets.EVALUATION_TESTS_CONFIG }}" | base64 --decode | jq > $GITHUB_WORKSPACE/config/config.json
+          echo "$GITHUB_WORKSPACE/config/config.json"
+          ls $GITHUB_WORKSPACE
 
       - name: K3d Setup - Install Kubectl CLI
         run: |
