@@ -87,7 +87,7 @@ jobs:
 
       - name: Companion Deploy - Update image name in Deployment
         run: |
-          kubectl -n ai-system set image deployment/companion companion=${{env.IMAGE_NAME}}
+          kubectl -n ai-system set image deployment/companion companion=${IMAGE_NAME}
 
       - name: Companion Deploy - Wait for deployment
         run: |
