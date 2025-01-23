@@ -1,0 +1,140 @@
+name: "Evaluation tests"
+run-name: "Evaluation tests"
+
+on:
+  push:
+    branches:
+      - main
+
+
+# global env variables.
+env:
+  DOCKER_TIMEOUT: 30
+  K3D_VERSION: "v5.7.2" # Required K3d version.
+  REPOSITORY_FULL_NAME: "mfaizanse/kyma-companion" # <owner>/<repository-name>.
+  IMAGE_NAME: "europe-docker.pkg.dev/kyma-project/dev/kyma-companion:main"
+
+jobs:
+  evaluation-tests:
+    name: Run evaluation tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: "kc-343-2"
+          repository: "mfaizanse/kyma-companion"
+
+      - name: Add config.json for companion
+        run: |
+          echo "${{ secrets.CONFIG_TEST }}" | base64 --decode | jq > ./config/config.json
+
+      - name: K3d Setup - Install Kubectl CLI
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          mv ./kubectl /usr/local/bin/kubectl
+          kubectl version --client
+
+      - name: K3d Setup - Install K3d CLI
+        id: install-k3d
+        run: |
+          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=${K3D_VERSION} bash
+          k3d --version
+          k3d_version=$(k3d --version | cut -d " " -f 3 | head -1 | xargs)
+          if [ "$k3d_version" != "${K3D_VERSION}" ]; then
+            echo "K3d version is not correct. Expected: ${K3D_VERSION}, got: $k3d_version"
+            exit 1
+          fi
+          echo "K3d version is correct: $k3d_version"
+
+      - name: K3d Setup - Provision K3d cluster
+        run: |
+          echo "::group::K3d - Provision"
+          k3d cluster create test-cluster --verbose --agents=1 -p 9080:80@loadbalancer -p 9443:443@loadbalancer -p "32000:32000@agent:0"
+          echo "::endgroup::"
+
+      - name: K3d Setup - Verify K3d context
+        run: |
+          echo "::group::K3d - Context"
+          context_name=$(kubectl config current-context)
+          if [ "$context_name" != "k3d-test-cluster" ]; then
+            echo "K3d context is not correct. Expected: k3d-test-cluster, got: $context_name"
+            exit 1
+          fi
+          echo "K3d context is correct"
+          echo "::endgroup::"
+
+      - name: Redis Setup - Deploy Redis using Helm
+        run: |
+          kubectl create namespace redis
+          helm repo add redis-stack https://redis-stack.github.io/helm-redis-stack/
+          echo "Installing Redis using Helm..."
+          helm install --wait redis-stack redis-stack/redis-stack --set auth.enabled=false -n redis
+
+      - name: Companion Deploy - Create secret
+        run: |
+          export COMPANION_CONFIG_PATH=$GITHUB_WORKSPACE/config/config.json
+          ./scripts/k8s/create-secret.sh
+
+      - name: Companion Deploy - Apply companion manifests
+        run: |
+          kubectl apply -f scripts/k8s/companion-k3d-manifest.yaml
+
+      - name: Companion Deploy - Update image name in Deployment
+        run: |
+          kubectl set image deployment/companion companion=${{env.IMAGE_NAME}}
+
+      - name: Companion Deploy - Wait for deployment
+        run: |
+          echo "Waiting for companion pods to be ready..."
+          kubectl wait --for=condition=Ready pod -l 'app.kubernetes.io/name=companion' -n ai-system --timeout=300s
+          sleep 30
+
+      - name: Companion Deploy - Test reachability through NodePort
+        run: |
+          curl http://localhost:32000/readyz
+
+      - name: Companion Deploy - Debug information
+        if: failure()
+        run: |
+          kubectl get deploy -n ai-system
+          kubectl get pod -n ai-system
+          kubectl logs -n ai-system -l app.kubernetes.io/name=companion
+
+      - name: Evaluation Tests Setup - Extract project Python version
+        working-directory: tests/blackbox
+        id: python-version
+        run: |
+          ./../../scripts/shell/extract-python-version.sh
+
+      - name: Evaluation Tests Setup - Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Evaluation Tests Setup - Install Poetry
+        working-directory: tests/blackbox
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Evaluation Tests Setup - Install dependencies
+        working-directory: tests/blackbox
+        run: poetry install
+
+      - name: Run Evaluation Tests
+        working-directory: tests/blackbox
+        env:
+          LOG_LEVEL: "DEBUG"
+          TEST_DATA_PATH: "./data"
+          COMPANION_API_URL: "http://localhost:32000"
+        run: |
+          poetry run python src/run_evaluation.py
+
+      - name: Evaluation Tests - Debug information
+        if: failure()
+        run: |
+          kubectl get deploy -n ai-system
+          kubectl get pod -n ai-system
+          kubectl logs -n ai-system -l app.kubernetes.io/name=companion
