@@ -87,12 +87,13 @@ jobs:
 
       - name: Companion Deploy - Update image name in Deployment
         run: |
+          echo "Updating companion image to ${IMAGE_NAME}..."
           kubectl -n ai-system set image deployment/companion companion=${IMAGE_NAME}
 
       - name: Companion Deploy - Wait for deployment
         run: |
           echo "Waiting for companion pods to be ready..."
-          kubectl wait --for=condition=Ready pod -l 'app.kubernetes.io/name=companion' -n ai-system --timeout=300s
+          kubectl wait --for=condition=Available deployment companion -n ai-system --timeout=300s
           sleep 30
 
       - name: Companion Deploy - Test reachability through NodePort
