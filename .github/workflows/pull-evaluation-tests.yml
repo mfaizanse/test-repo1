@@ -25,12 +25,6 @@ jobs:
           ref: "kc-343-2"
           repository: "mfaizanse/kyma-companion"
 
-      - name: Add config.json for companion
-        run: |
-          echo "${{ secrets.EVALUATION_TESTS_CONFIG }}" | base64 --decode | jq > $GITHUB_WORKSPACE/config/config.json
-          echo "$GITHUB_WORKSPACE/config/config.json"
-          ls 
-
       - name: K3d Setup - Install Kubectl CLI
         run: |
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -92,7 +86,7 @@ jobs:
 
       - name: Companion Deploy - Wait for deployment
         run: |
-          echo "Waiting for companion pods to be ready..."
+          echo "Waiting for companion deployment to be ready..."
           kubectl wait --for=condition=Available deployment companion -n ai-system --timeout=300s
           sleep 30
 
@@ -135,6 +129,9 @@ jobs:
           TEST_DATA_PATH: "./data"
           COMPANION_API_URL: "http://localhost:32000"
         run: |
+          export CONFIG_PATH=$GITHUB_WORKSPACE/config/config.json
+          echo "${{ secrets.EVALUATION_TESTS_CONFIG }}" | base64 --decode | jq > $CONFIG_PATH
+          echo "saved config to $CONFIG_PATH!"
           poetry run python src/run_evaluation.py
 
       - name: Evaluation Tests - Debug information
