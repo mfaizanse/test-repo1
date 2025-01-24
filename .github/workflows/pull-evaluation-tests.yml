@@ -12,7 +12,7 @@ env:
   DOCKER_TIMEOUT: 30
   K3D_VERSION: "v5.7.2" # Required K3d version.
   REPOSITORY_FULL_NAME: "mfaizanse/kyma-companion" # <owner>/<repository-name>.
-  IMAGE_NAME: "europe-docker.pkg.dev/kyma-project/dev/kyma-companion:main"
+  IMAGE_NAME: "europe-docker.pkg.dev/kyma-project/prod/kyma-companion:main"
 
 jobs:
   evaluation-tests:
